@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Glins Cravings - Welcome</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+        body { 
+            background: linear-gradient(to bottom, #EABFB9 0%, #B86B77 100%); 
+            height: 100vh; display: flex; justify-content: center; align-items: center; 
+        }
+        .welcome-card {
+            background-color: #EABFB9; 
+            padding: 50px;
+            border-radius: 30px;
+            border: 1px solid #000;
+            text-align: center;
+            width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .logo-img { width: 120px; margin-bottom: 20px; }
+        .welcome-title { font-size: 32px; font-weight: 800; margin-bottom: 30px; }
+        .button-stack { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        .stack-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            background-color: #B86B77;
+            border: 1px solid #000;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-card">
+        <img src="logo.png" class="logo-img" alt="Logo">
+        <h1 class="welcome-title">Welcome to<br>Glins Cravings</h1>
+        <div class="button-stack">
+            <button class="stack-btn" onclick="location.href='login.html'">Login</button>
+            <button class="stack-btn" onclick="location.href='registration.html'">Registration</button>
+        </div>
+    </div>
+</body>
+</html>

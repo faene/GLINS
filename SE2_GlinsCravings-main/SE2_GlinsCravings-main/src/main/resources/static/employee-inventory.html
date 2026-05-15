@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory View - Glins Cravings</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            .highlight-row {
+                animation: gc-highlight 2s ease-in-out;
+                background: #fff3cd !important;
+                border-left: 4px solid #ffc107;
+            }
+            @keyframes gc-highlight {
+                0% { background: #fff3cd; }
+                100% { background: transparent; }
+            }
+        </style>
+</head>
+<body>
+
+    <div class="dashboard-container" style="width: 1100px; height: auto; min-height: 650px;">
+        <div class="dash-header">
+            <img src="logo.png" alt="Logo" class="dash-logo">
+            <h1 class="dash-title">Glins Cravings: Inventory</h1>
+        </div>
+
+        <div class="inventory-container">
+            <div style="display: flex; justify-content: space-between;">
+                <button class="action-btn" style="width: 100px;" onclick="location.href='employee-dashboard.html'">
+                    <i class="fa-solid fa-chevron-left"></i> Back
+                </button>
+                <div style="display: flex; gap: 10px;">
+                    </div>
+            </div>
+
+            <div class="table-controls">
+                <div>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="inventorySearch" placeholder="Search stock..." class="search-input">
+                </div>
+                <div>
+                    <label>Category:</label>
+                    <select id="employeeCategoryFilter" data-category-select style="padding: 5px; border-radius: 5px;">
+                        <option value="">All Items</option>
+                    </select>
+                </div>
+            </div>
+<div class="table-wrapper">
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                        <th>Expiration</th>
+                        <th>Status</th>
+                        </tr>
+                </thead>
+                <tbody id="inventoryBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="logout-footer">
+            <p class="copyright">Copyrights 2025 @ Glins Cravings</p>
+        </div>
+    </div>
+
+    <script src="script.js?v=3"></script>
+    <script>
+        let inventoryItems = [];
+
+        function getFilteredInventory() {
+            const searchValue = document.getElementById('inventorySearch')?.value.trim().toLowerCase() || '';
+            const categoryValue = document.getElementById('employeeCategoryFilter')?.value || '';
+
+            return inventoryItems.filter(item => {
+                const matchesSearch = !searchValue ||
+                    `${item.productCode || ''} ${item.name || ''}`.toLowerCase().includes(searchValue);
+                const matchesCategory = !categoryValue || (item.category || '') === categoryValue;
+                return matchesSearch && matchesCategory;
+            });
+        }
+
+        async function loadInventory() {
+            inventoryItems = await getInventory();
+            const tbody = document.getElementById('inventoryBody');
+            tbody.innerHTML = '';
+            getFilteredInventory().forEach(item => {
+                const tr = document.createElement('tr');
+                tr.dataset.pid = item.id;
+                tr.innerHTML = `
+                    <td>${item.productCode}</td>
+                    <td>${item.name}</td>
+                    <td>${item.category || ''}</td>
+                    <td>${item.stock}</td>
+                    <td>${peso(item.price)}</td>
+                    <td>${item.expirationDate || ''}</td>
+                    <td>${statusBadgeHtml(item.status)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function highlightRow(id) {
+            if (!id) return;
+            const row = document.querySelector(`#inventoryBody tr[data-pid="${id}"]`);
+            if (!row) return;
+            try { row.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+            row.classList.add('highlight-row');
+            setTimeout(() => row.classList.remove('highlight-row'), 2400);
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await populateCategorySelects();
+            const searchInput = document.getElementById('inventorySearch');
+            const categoryFilter = document.getElementById('employeeCategoryFilter');
+
+            if (searchInput) searchInput.addEventListener('input', loadInventory);
+            if (categoryFilter) categoryFilter.addEventListener('change', loadInventory);
+
+            await loadInventory();
+
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const focus = params.get('focusId');
+                if (focus) {
+                    const id = parseInt(focus, 10);
+                    if (!isNaN(id)) {
+                        highlightRow(id);
+                    }
+                }
+            } catch (e) { /* ignore */ }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Alerts - Glins Cravings</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* UI/UX: Page Lock to prevent stretching */
+        .dashboard-container {
+            width: 1100px;
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: auto;
+        }
+
+        .alert-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .alert-card {
+            background: white;
+            border: 3px solid #000;
+            border-radius: 25px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 8px 8px 0px #B86B77;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .alert-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #fdf2f2;
+        }
+
+        /* UI/UX: Dedicated scroll areas for long lists */
+        .scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .alert-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .alert-table th {
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            padding: 10px;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        /* UX Animation: Rows fade in smoothly */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-table tr {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        .alert-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        /* Visual Cues for UX */
+        .info-badge {
+            background: #B86B77;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+        }
+
+        .warning-text { color: #f39c12; }
+        .danger-text { color: #ff4d4d; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="dash-header">
+            <img src="logo.png" alt="Logo" class="dash-logo">
+            <h1 class="dash-title">Staff Notifications</h1>
+        </div>
+
+        <div style="padding: 10px 25px;">
+            <a href="employee-dashboard.html" style="text-decoration:none; color:#000; font-weight:800; font-size:13px;">
+                <i class="fa-solid fa-arrow-left"></i> BACK TO DASHBOARD
+            </a>
+        </div>
+
+        <div class="alert-wrapper">
+            
+            <div class="alert-card">
+                <div class="alert-header">
+                    <h2 style="margin:0; font-size:18px; color:#B86B77;"><i class="fa-solid fa-box-open"></i> Stock Alerts</h2>
+                    <span class="info-badge">VIEW ONLY</span>
+                </div>
+                <div class="scroll-area">
+                    <table class="alert-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Status / Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockAlertsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="alert-card">
+                <div class="alert-header">
+                    <h2 style="margin:0; font-size:18px; color:#B86B77;"><i class="fa-solid fa-hourglass-half"></i> Near Expiry</h2>
+                    <span style="font-size:11px; font-weight:800; color:#999;">CHECK SHELVES</span>
+                </div>
+
+                <div class="scroll-area">
+                    <table class="alert-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Expiry Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expiryAlertsBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:10px; background:#fdf2f2; padding:10px; border-radius:10px; font-size:11px; color:#B86B77; border: 1px solid #B86B77;">
+                    <i class="fa-solid fa-circle-info"></i> <strong>Staff Note:</strong> Please prioritize these items or notify the Admin for restock/disposal.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="logout-footer">
+            <p class="copyright">Glins Cravings | Staff Portal 2025</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadAlerts() {
+            const [lowStock, nearExpiry] = await Promise.all([
+                getLowStockItems(),
+                getNearExpiryItems()
+            ]);
+
+            const stockBody = document.getElementById('stockAlertsBody');
+            stockBody.innerHTML = '';
+            const lowIds = lowStock.map(i => i.id);
+            const restockedIds = cleanupRestocked(lowIds);
+            lowStock.filter(item => !restockedIds.includes(item.id)).forEach(item => {
+                const cls = item.stock === 0 ? 'danger-text' : 'warning-text';
+                const label = item.stock === 0 ? 'OUT OF STOCK' : item.stock + ' LEFT';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="${cls}">${item.name}</td><td class="${cls}">${label}</td>`;
+                stockBody.appendChild(tr);
+            });
+            if (lowStock.length === 0) {
+                stockBody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#999;">All items in stock</td></tr>';
+            }
+
+            const expiryBody = document.getElementById('expiryAlertsBody');
+            expiryBody.innerHTML = '';
+            nearExpiry.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${item.name}</td><td>${item.expirationDate}</td><td class="danger-text">Expiring Soon</td>`;
+                expiryBody.appendChild(tr);
+            });
+            if (nearExpiry.length === 0) {
+                expiryBody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#999;">No items near expiry</td></tr>';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadAlerts);
+        // Refresh alerts if another tab marks items as restocked
+        window.addEventListener('storage', (e) => { if (e.key === 'gc_restocked') loadAlerts(); });
+        window.addEventListener('gc_restocked', loadAlerts);
+    </script>
+</body>
+</html>

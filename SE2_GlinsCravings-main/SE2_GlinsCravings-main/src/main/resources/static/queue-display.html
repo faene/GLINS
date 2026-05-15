@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Queue - Glins Cravings</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .queue-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .queue-column {
+            background: white;
+            border: 4px solid #000;
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 10px 10px 0px #EABFB9;
+        }
+
+        .queue-header {
+            background: #B86B77;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            border-bottom: 4px solid #000;
+        }
+
+        .ready-header {
+            background: #28a745;
+        }
+
+        .queue-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .order-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #000;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-weight: 800;
+            background: #fff;
+        }
+
+        .order-card .info {
+            font-size: 14px;
+        }
+
+        .order-card .info small {
+            font-weight: 400;
+            color: #666;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .queue-action-btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: 2px solid #000;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .mark-ready {
+            background: #28a745;
+            color: white;
+        }
+
+        .mark-done {
+            background: #666;
+            color: white;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: #999;
+            margin-top: 40px;
+            font-weight: 700;
+        }
+
+        .footer-msg {
+            text-align: center;
+            padding: 20px;
+            font-weight: 700;
+            color: #B86B77;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container" style="width: 1000px; height: 650px; display: flex; flex-direction: column;">
+        <div class="dash-header">
+            <img src="logo.png" alt="Logo" class="dash-logo">
+            <h1 class="dash-title">NOW SERVING</h1>
+        </div>
+
+        <div style="padding: 10px 40px; display: flex; justify-content: space-between; align-items: center;">
+            <button class="action-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-chevron-left"></i> Back
+            </button>
+            <span style="font-size: 12px; font-weight: 700; color: #666;">
+                <i class="fa-solid fa-rotate"></i> Auto-refreshes every 5s
+            </span>
+        </div>
+
+        <div class="queue-wrapper">
+            <div class="queue-column">
+                <div class="queue-header">PREPARING...</div>
+                <div class="queue-list" id="preparingList"></div>
+            </div>
+
+            <div class="queue-column">
+                <div class="queue-header ready-header">READY FOR PICKUP</div>
+                <div class="queue-list" id="readyList"></div>
+            </div>
+        </div>
+
+        <div class="footer-msg">
+            <i class="fa-solid fa-utensils"></i> Please present your receipt when claiming your order.
+        </div>
+
+        <div class="logout-footer">
+            <p class="copyright">Copyrights 2025 @ Glins Cravings</p>
+        </div>
+    </div>
+
+    <script>
+        async function updateStatus(id, status) {
+            try {
+                const res = await fetch('/api/orders/' + id + '/status', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadQueue();
+                } else {
+                    alert(data.message || 'Failed to update');
+                }
+            } catch (e) {
+                alert('Connection error');
+            }
+        }
+
+        async function loadQueue() {
+            try {
+                const [preparing, ready] = await Promise.all([
+                    fetch('/api/orders/queue/preparing').then(r => r.json()),
+                    fetch('/api/orders/queue/ready').then(r => r.json())
+                ]);
+
+                const prepList = document.getElementById('preparingList');
+                prepList.innerHTML = '';
+                if (preparing.length === 0) {
+                    prepList.innerHTML = '<div class="empty-msg">No orders preparing</div>';
+                } else {
+                    preparing.forEach(o => {
+                        const card = document.createElement('div');
+                        card.className = 'order-card';
+                        card.innerHTML = `
+                            <div class="info">#${o.id} - ${o.customerName || 'Guest'}<small>${o.items ? o.items.map(i => i.productName).join(', ') : ''}</small></div>
+                            <button class="queue-action-btn mark-ready" onclick="updateStatus(${o.id}, 'PROCESSING')">Ready</button>
+                        `;
+                        prepList.appendChild(card);
+                    });
+                }
+
+                const readyList = document.getElementById('readyList');
+                readyList.innerHTML = '';
+                if (ready.length === 0) {
+                    readyList.innerHTML = '<div class="empty-msg">No ready orders</div>';
+                } else {
+                    ready.forEach(o => {
+                        const card = document.createElement('div');
+                        card.className = 'order-card';
+                        card.innerHTML = `
+                            <div class="info">#${o.id} - ${o.customerName || 'Guest'}</div>
+                            <button class="queue-action-btn mark-done" onclick="updateStatus(${o.id}, 'COMPLETED')">Picked Up</button>
+                        `;
+                        readyList.appendChild(card);
+                    });
+                }
+            } catch (e) {
+                document.getElementById('preparingList').innerHTML = '<div class="empty-msg">Could not load queue</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadQueue);
+        setInterval(loadQueue, 5000);
+    </script>
+</body>
+</html>

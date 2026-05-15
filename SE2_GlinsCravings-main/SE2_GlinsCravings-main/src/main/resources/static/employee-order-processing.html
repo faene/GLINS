@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff POS - Glins Cravings</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-container {
+            width: 1100px;
+            height: 650px; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            justify-content: space-between; /* Added to separate the buttons */
+        }
+
+        .pos-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 15px;
+            padding: 15px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .menu-container, .billing-panel {
+            background: white;
+            border: 2px solid #000;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .scroll-grid {
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+            padding-right: 10px;
+        }
+
+        .product-card {
+            background: #fff;
+            border: 2px solid #000;
+            padding: 20px 10px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 4px 4px 0px #EABFB9;
+        }
+
+        .product-card:hover { background: #fdf2f2; transform: translateY(-2px); }
+
+        #order-list {
+            flex: 1;
+            overflow-y: auto;
+            margin: 15px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .cart-row {
+            display:flex; 
+            justify-content:space-between; 
+            padding:10px 0; 
+            border-bottom:1px dashed #eee; 
+            font-size:14px;
+        }
+
+        .back-btn {
+            background: #000;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="dash-header">
+            <img src="logo.png" alt="Logo" class="dash-logo">
+            <h1 class="dash-title">STAFF POS SYSTEM</h1>
+        </div>
+
+        <div class="nav-controls">
+            <a href="employee-dashboard.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i> BACK TO DASHBOARD
+            </a>
+
+            <a href="queue-display.html" class="back-btn" style="background: #B86B77;">
+                <i class="fa-solid fa-tv"></i> VIEW LIVE QUEUE
+            </a>
+        </div>
+
+        <div class="pos-wrapper">
+            <div class="menu-container">
+                <h3 style="margin-bottom:15px;"><i class="fa-solid fa-utensils"></i> MENU</h3>
+                <div class="scroll-grid" id="menuGrid">
+                    <p style="text-align:center; color:#999; grid-column:span 2;">Loading menu...</p>
+                </div>
+            </div>
+
+            <div class="billing-panel">
+    <div style="background:#fdf2f2; padding:12px; border-radius:15px; border:2px solid #000; flex-shrink: 0;">
+        <label style="font-size:11px; font-weight:900; display:block; margin-bottom:5px;">CUSTOMER NAME</label>
+        <input type="text" id="custName" placeholder="Enter Name..." style="width:100%; padding:8px; border:2px solid #000; border-radius:10px; font-weight: 700;">
+    </div>
+
+    <div id="order-list" style="flex: 1; overflow-y: auto; margin: 10px 0; border-top: 1px solid #eee; padding-top: 5px;">
+        <p style="text-align:center; color:#ccc; margin-top:50px; font-weight:700;">Cart is empty</p>
+    </div>
+
+    <div class="checkout-section" style="border-top: 3px solid #000; padding-top:10px; flex-shrink: 0;">
+        <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:900; color:#B86B77; margin-bottom:10px;">
+            <span>TOTAL:</span>
+            <span id="total-val">₱0.00</span>
+        </div>
+        
+        <div style="display: flex; gap: 8px;">
+            <button class="action-btn" style="flex: 2; height: 45px; background:#28a745; color:white; font-size: 14px;" onclick="completeSale()">
+                COMPLETE SALE
+            </button>
+            <button class="action-btn" style="flex: 1; height: 45px; background:#666; color:white; font-size: 12px;" onclick="clearAll()">
+                CLEAR
+            </button>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <div class="logout-footer">
+            <p class="copyright">Copyrights 2025 @ Glins Cravings | Staff Portal</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let total = 0;
+        let cartItems = [];
+
+        async function loadMenu() {
+            try {
+                const products = await getInventory();
+                const grid = document.getElementById('menuGrid');
+                grid.innerHTML = '';
+                if (!products || products.length === 0) {
+                    grid.innerHTML = '<p style="text-align:center; color:#999; grid-column:span 2;">No products available</p>';
+                    return;
+                }
+                products.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `${p.name}<br>₱${parseFloat(p.price).toFixed(2)}`;
+                    card.onclick = () => addToCart(p.name, parseFloat(p.price));
+                    grid.appendChild(card);
+                });
+            } catch (e) {
+                document.getElementById('menuGrid').innerHTML = '<p style="text-align:center; color:#999; grid-column:span 2;">Could not load menu</p>';
+            }
+        }
+
+        function addToCart(name, price) {
+            const existing = cartItems.find(i => i.name === name);
+            if (existing) {
+                existing.qty = (existing.qty || 1) + 1;
+            } else {
+                cartItems.push({ name, price, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('order-list');
+            list.innerHTML = '';
+            total = 0;
+
+            if (cartItems.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#ccc; margin-top:50px;">Cart is empty</p>';
+                document.getElementById('total-val').innerText = '₱0.00';
+                return;
+            }
+
+            cartItems.forEach((item, index) => {
+                const subtotal = item.price * (item.qty || 1);
+                const row = document.createElement('div');
+                row.className = 'cart-row';
+                row.innerHTML = `
+                    <span style="font-weight:700;">${item.qty || 1}x ${item.name}</span>
+                    <div>
+                        <span style="margin-right:8px; font-weight:700;">₱${subtotal.toFixed(2)}</span>
+                        <i class="fa-solid fa-circle-xmark" style="color:#ff4d4d; cursor:pointer;" onclick="removeItem(${index})"></i>
+                    </div>
+                `;
+                list.appendChild(row);
+                total += subtotal;
+            });
+            document.getElementById('total-val').innerText = `₱${total.toFixed(2)}`;
+        }
+
+        function removeItem(index) {
+            cartItems.splice(index, 1);
+            renderCart();
+        }
+
+        function clearAll() {
+            if(cartItems.length > 0 && confirm("Clear entire order?")) {
+                cartItems = [];
+                renderCart();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadMenu);
+
+        async function completeSale() {
+            if(cartItems.length === 0) return showToast('Add items first!', 'error');
+
+            const orderData = {
+                customer: document.getElementById('custName').value || 'Guest',
+                items: cartItems.map(i => ({
+                    name: i.name,
+                    qty: i.qty || 1,
+                    price: i.price
+                }))
+            };
+
+            const res = await addOrder(orderData);
+
+            if (res.success) {
+                showToast('Order #' + res.data.id + ' added to queue!', 'success');
+                cartItems = [];
+                document.getElementById('custName').value = '';
+                renderCart();
+            } else {
+                showToast(res.message || 'Order failed.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

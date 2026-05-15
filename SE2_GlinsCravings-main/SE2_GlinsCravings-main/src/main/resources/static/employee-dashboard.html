@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard - Glins Cravings</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #2b2b2b; /* Dark outer background */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .dashboard-container {
+            width: 1100px;
+            height: 650px;
+            background-color: #ffc1cc; /* The pink background */
+            border: 4px solid #000;
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .dash-header {
+            background: #fff;
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            border-bottom: 4px solid #000;
+        }
+
+        .dash-logo {
+            height: 60px;
+            margin-right: 20px;
+        }
+
+        .dash-title {
+            font-size: 35px;
+            font-weight: 900;
+            margin: 0;
+        }
+
+        /* SEARCH BAR AREA */
+        .search-section {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .search-box {
+            background: #fff;
+            border: 3px solid #000;
+            border-radius: 50px;
+            padding: 8px 25px;
+            width: 500px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .search-btn {
+            background: #b0747c;
+            color: white;
+            border: 3px solid #000;
+            border-radius: 20px;
+            padding: 10px 30px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        /* THE MENU GRID */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px 80px;
+        }
+
+        /* THE BUTTON DESIGN FROM THE IMAGE */
+        .menu-btn {
+            background-color: #fff0f3; /* Light pinkish-white */
+            border: 4px solid #000;    /* Thick black border */
+            border-radius: 25px;       /* Rounded corners */
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            text-decoration: none;
+            color: #000;
+            font-size: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            /* The hard solid shadow from the image */
+            box-shadow: 6px 6px 0px #000; 
+            transition: all 0.1s;
+        }
+
+        .menu-btn i {
+            font-size: 28px;
+        }
+
+        /* Click effect */
+        .menu-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .menu-btn:hover {
+            background-color: #fff;
+        }
+
+        /* LOGOUT BUTTON - DARKER PINK */
+        .logout-section {
+            margin-top: auto;
+            display: flex;
+            justify-content: center;
+            padding-bottom: 30px;
+        }
+
+        .logout-btn {
+            background-color: #b0747c;
+            color: white;
+            width: 400px;
+            justify-content: center;
+        }
+
+        .footer-text {
+            text-align: center;
+            background: white;
+            padding: 5px;
+            border-top: 4px solid #000;
+            font-weight: 900;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="dash-header">
+            <img src="logo.png" alt="Logo" class="dash-logo">
+            <h1 class="dash-title">Glins Cravings</h1>
+        </div>
+
+        <div class="search-section">
+            <h2 style="font-weight: 800;">Search Product:</h2>
+            <div class="search-bar">
+                <input type="search" id="dashboardProductSearch" placeholder="Search product" autocomplete="off">
+            </div>
+            <button class="action-btn" id="dashboardSearchBtn" style="width: 120px;">Search</button>
+        </div>
+
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="location.href='employee-inventory.html'">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Inventory Management</span>
+            </button>
+            
+            <button class="menu-btn" onclick="location.href='employee-notifications.html'">
+                <i class="fa-solid fa-bell"></i>
+                <span>Notifications</span>
+            </button>
+
+            <button class="menu-btn" onclick="location.href='employee-order-processing.html'">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Order Processing</span>
+            </button>
+
+            <button class="menu-btn" onclick="location.href='employee-help.html'">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Help and Tutorials</span>
+            </button>
+        </div>
+
+        <div class="logout-footer" style="text-align: center;">
+            <button class="action-btn" style="width: 300px; margin-bottom: 10px;" onclick="location.href='login.html'">Logout</button>
+            <p class="copyright" style="margin: 0; font-weight: 800;">Copyrights 2026 @ Glins Cravings</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            requireLogin();
+            initDashboardSearch({
+                inputId: 'dashboardProductSearch',
+                buttonId: 'dashboardSearchBtn',
+                targetPage: 'employee-inventory.html'
+            });
+        });
+    </script>
+</body>
+</html>

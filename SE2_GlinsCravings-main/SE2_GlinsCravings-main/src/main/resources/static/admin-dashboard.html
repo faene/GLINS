@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Glins Cravings</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="dash-header">
+            <img src="logo.png" alt="Logo" class="dash-logo">
+            <h1 class="dash-title">Glins Cravings</h1>
+        </div>
+
+        <div class="search-section">
+            <h2 style="font-weight: 800;">Search Product:</h2>
+            <div class="search-bar">
+                <input type="search" id="dashboardProductSearch" placeholder="Search product" autocomplete="off">
+            </div>
+            <button class="action-btn" id="dashboardSearchBtn" style="width: 120px;">Search</button>
+        </div>
+
+        <div class="menu-grid">
+    <button class="menu-btn" onclick="location.href='inventory.html'">
+        <i class="fa-solid fa-clipboard-list"></i> Inventory Management
+    </button>
+    
+    <button class="menu-btn" onclick="location.href='notifications.html'">
+        <i class="fa-solid fa-bell"></i> Low Stock and Expiration Notification
+    </button>
+
+    <button class="menu-btn" onclick="location.href='sales-report.html'">
+        <i class="fa-solid fa-chart-line"></i> Sales Report
+    </button>
+
+    <button class="menu-btn" onclick="location.href='maintenance.html'">
+        <i class="fa-solid fa-gears"></i> Maintenance
+    </button>
+
+    <button class="menu-btn" onclick="location.href='order-processing.html'">
+        <i class="fa-solid fa-cart-shopping"></i> Order Processing
+    </button>
+
+    <button class="menu-btn" onclick="location.href='help.html'">
+        <i class="fa-solid fa-circle-info"></i> Help and Tutorials
+    </button>
+</div>
+
+        <div class="logout-footer">
+            <button class="action-btn" style="width: 350px;" onclick="logout()">Logout</button>
+            <p class="copyright">Copyrights 2025 @ Glins Cravings</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            requireLogin();
+            initDashboardSearch({
+                inputId: 'dashboardProductSearch',
+                buttonId: 'dashboardSearchBtn',
+                targetPage: 'inventory.html'
+            });
+        });
+    </script>
+</body>
+</html>

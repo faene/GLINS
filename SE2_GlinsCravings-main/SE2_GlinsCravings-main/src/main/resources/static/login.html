@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glins Cravings - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="split-window">
+        <div class="panel-left">
+            <h1 style="font-size: 48px; margin-bottom: 20px;">Sign in</h1>
+            <div class="form-box">
+                <div class="input-capsule">
+                    <input type="text" id="username" placeholder="Username">
+                </div>
+                <div class="input-capsule">
+                    <input type="password" id="password" placeholder="Password">
+                </div>
+                
+                <button class="action-btn" onclick="handleLogin()">Login</button>
+                
+                <a href="forgot-password.html" style="font-size: 14px; align-self: flex-end; color: black; text-decoration: none;">Forgot Password?</a>
+            </div>
+        </div>
+        <div class="panel-right">
+            <img src="logo.png" alt="Glins Cravings Logo" style="width: 150px; margin-bottom: 20px;">
+            
+            <h1 class="welcome-text">Hello, Glins<br>Craver!</h1>
+            <p>Do not have an account?<br>Sign up to create one.</p>
+            <button class="action-btn" style="background-color: transparent; margin-top: 20px;" onclick="location.href='registration.html'">Sign up</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('password').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') handleLogin();
+            });
+            document.getElementById('username').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') handleLogin();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glins Cravings - Registration</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="split-window">
+        <div class="panel-left">
+            <div class="logo-placeholder" style="background: white; padding: 10px; border-radius: 50%; border: 2px solid #000;">
+                <img src="logo.png" alt="Logo" style="width: 80px;">
+            </div>
+            <h1 class="welcome-title" style="font-size: 32px; font-weight: 800; margin: 20px 0;">Welcome to<br>Glins Cravings!</h1>
+            <p style="font-weight: 600;">Already have an account?<br>Sign in to get started</p>
+            <button class="action-btn" style="background: transparent; margin-top: 20px;" onclick="location.href='login.html'">Sign in</button>
+        </div>
+
+        <div class="panel-right">
+            <h1 class="form-title" style="font-size: 40px; font-weight: 800; margin-bottom: 20px;">Create Account</h1>
+            
+            <div class="form-box">
+                <div class="input-capsule">
+                    <i class="fa-solid fa-address-card"></i>
+                    <input type="text" id="reg-fullname" placeholder="Enter Full Name">
+                </div>
+
+                <div class="input-capsule">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="reg-username" placeholder="Enter Username">
+                </div>
+
+                <div class="input-capsule">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="reg-password" placeholder="Enter Password">
+                </div>
+
+                <div class="input-capsule">
+                    <i class="fa-solid fa-cog"></i>
+                    <select id="reg-role">
+                        <option value="" disabled selected>Role</option>
+                        <option value="ADMIN">Admin</option>
+                        <option value="EMPLOYEE">Employee</option>
+                    </select>
+                </div>
+
+                <button class="action-btn" id="signup-btn" style="margin-top: 10px;">Sign up</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Management - Glins Cravings</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Highlight animation for focused product row */
+        .highlight-row {
+            animation: gc-highlight 2s ease-in-out;
+            background: #fff3cd !important;
+            border-left: 4px solid #ffc107;
+        }
+        @keyframes gc-highlight {
+            0% { background: #fff3cd; }
+            100% { background: transparent; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container" style="width: 1100px; height: 650px;">
+        <div class="dash-header">
+            <img src="logo.png" alt="Logo" class="dash-logo">
+            <h1 class="dash-title">Glins Cravings: Inventory</h1>
+        </div>
+
+        <div class="inventory-container">
+            <div style="display: flex; justify-content: space-between;">
+                <button class="action-btn" style="width: 100px;" onclick="location.href='admin-dashboard.html'">
+                    <i class="fa-solid fa-chevron-left"></i> Back
+                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn" style="background-color: #f8d7da;">Print Report</button>
+                    <button class="action-btn" style="background-color: #28a745; color: white;" onclick="openModal()">+ Add New Item</button>
+                </div>
+            </div>
+
+            <div class="table-controls">
+                <div>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="inventorySearch" placeholder="Search by name or ID..." class="search-input">
+                </div>
+                <div>
+                    <label>Category:</label>
+                    <select id="inventoryCategoryFilter" data-category-select style="padding: 5px; border-radius: 5px;">
+                        <option value="">All Items</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Price</th>
+                            <th>Expiration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="logout-footer">
+            <p class="copyright">Copyrights 2025 @ Glins Cravings</p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">Add New Product</div>
+            <input type="hidden" id="editItemId" value="">
+            <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" id="newItemName" placeholder="e.g. Potato Corndog">
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="newItemCategory" data-category-select>
+                    <option value="">Loading categories...</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Price (₱)</label>
+                    <input type="number" id="newItemPrice" placeholder="0.00">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Stock</label>
+                    <input type="number" id="newItemStock" placeholder="10">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Expiration Date</label>
+                <input type="date" id="newItemExp">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="action-btn" style="background-color: #EABFB9; flex: 1;" onclick="closeModal()">Cancel</button>
+                <button class="action-btn" style="background-color: #28a745; color: white; flex: 1;" onclick="saveItem()">Save Product</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=3"></script>
+    <script>
+        requireLogin();
+
+        let inventoryItems = [];
+
+        function openModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('editItemId').value = '';
+            document.getElementById('newItemName').value = '';
+            const categorySelect = document.getElementById('newItemCategory');
+            categorySelect.value = categorySelect.options[0]?.value || '';
+            document.getElementById('newItemPrice').value = '';
+            document.getElementById('newItemStock').value = '';
+            document.getElementById('newItemExp').value = '';
+            document.querySelector('#addModal .modal-header').textContent = 'Add New Product';
+            document.querySelector('#addModal .action-btn:last-child').textContent = 'Save Product';
+        }
+
+        function getFilteredInventory() {
+            const searchValue = document.getElementById('inventorySearch')?.value.trim().toLowerCase() || '';
+            const categoryValue = document.getElementById('inventoryCategoryFilter')?.value || '';
+
+            return inventoryItems.filter(item => {
+                const matchesSearch = !searchValue ||
+                    `${item.productCode || ''} ${item.name || ''}`.toLowerCase().includes(searchValue);
+                const matchesCategory = !categoryValue || (item.category || '') === categoryValue;
+                return matchesSearch && matchesCategory;
+            });
+        }
+
+        function renderInventory() {
+            const items = getFilteredInventory();
+            const tbody = document.getElementById('inventoryBody');
+            tbody.innerHTML = '';
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.dataset.pid = item.id;
+                tr.innerHTML = `
+                    <td>${item.productCode}</td>
+                    <td>${item.name}</td>
+                    <td>${item.category || ''}</td>
+                    <td>${item.stock}</td>
+                    <td>${peso(item.price)}</td>
+                    <td>${item.expirationDate || ''}</td>
+                    <td>${statusBadgeHtml(item.status)}</td>
+                    <td>
+                        <i class="fa-solid fa-pen" style="color: #B86B77; cursor: pointer;" onclick="editItem(${item.id})"></i>
+                        <i class="fa-solid fa-trash" style="color: #666; cursor: pointer; margin-left: 10px;" onclick="deleteItem(${item.id})"></i>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function highlightRow(id) {
+            if (!id) return;
+            const tbody = document.getElementById('inventoryBody');
+            const row = tbody.querySelector(`tr[data-pid="${id}"]`);
+            if (!row) return;
+            try {
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (e) { /* ignore */ }
+            row.classList.add('highlight-row');
+            setTimeout(() => { row.classList.remove('highlight-row'); }, 2400);
+        }
+
+        async function loadInventory() {
+            inventoryItems = await getInventory();
+            renderInventory();
+        }
+
+        function bindInventoryFilters() {
+            const searchInput = document.getElementById('inventorySearch');
+            const categoryFilter = document.getElementById('inventoryCategoryFilter');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', renderInventory);
+            }
+
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', renderInventory);
+            }
+        }
+
+        async function deleteItem(id) {
+            if (!confirm('Delete this item?')) return;
+            const res = await deleteInventoryItem(id);
+            if (res.success) {
+                await loadInventory();
+                showToast('Item deleted.', 'info');
+            } else {
+                showToast(res.message || 'Delete failed.', 'error');
+            }
+        }
+
+        async function saveItem() {
+            const editId = document.getElementById('editItemId').value;
+            const name = document.getElementById('newItemName').value.trim();
+            const cat = document.getElementById('newItemCategory').value;
+            const price = document.getElementById('newItemPrice').value;
+            const stock = document.getElementById('newItemStock').value;
+            const exp = document.getElementById('newItemExp').value;
+            const stockValue = stock.trim() === '' ? null : parseInt(stock, 10);
+
+            if(!name || !price) {
+                showToast('Name and price are required.', 'error');
+                return;
+            }
+            const data = {
+                name: name,
+                category: cat,
+                stock: stockValue,
+                price: parseFloat(price),
+                expirationDate: exp || null
+            };
+            // If creating a new item, detect duplicates by name (case-insensitive)
+            if (!editId) {
+                const all = await getInventory();
+                const existing = all.find(p => (p.name || '').toLowerCase() === name.toLowerCase());
+                if (existing) {
+                    if (confirm('An item with this name already exists in inventory. Open existing item to update instead?')) {
+                        // open edit modal for existing product and prefill new stock if provided
+                        await loadInventory();
+                        editItem(existing.id);
+                        if (stockValue !== null) document.getElementById('newItemStock').value = stockValue;
+                        return;
+                    }
+                }
+            }
+
+            let res;
+            if (editId) {
+                res = await updateInventoryItem(editId, data);
+            } else {
+                res = await addInventoryItem({
+                    name: name,
+                    category: cat,
+                    stock: stockValue,
+                    price: parseFloat(price),
+                    expiration: exp
+                });
+            }
+
+            if (res && res.success) {
+                // mark item as restocked so notifications will hide it
+                const created = res.data;
+                const pid = created && created.id ? created.id : editId;
+                if (pid) markRestocked(pid);
+                await loadInventory();
+                closeModal();
+                showToast(editId ? 'Product updated!' : 'Product added!', 'success');
+            } else {
+                showToast((res && res.message) || 'Operation failed.', 'error');
+            }
+        }
+
+        async function editItem(id) {
+            const items = await getInventory();
+            const item = items.find(p => p.id === id);
+            if (!item) return;
+            document.getElementById('editItemId').value = id;
+            document.getElementById('newItemName').value = item.name;
+            document.getElementById('newItemCategory').value = item.category || '';
+            document.getElementById('newItemPrice').value = item.price;
+            document.getElementById('newItemStock').value = item.stock;
+            document.getElementById('newItemExp').value = item.expirationDate || '';
+            document.querySelector('#addModal .modal-header').textContent = 'Edit Product';
+            document.querySelector('#addModal .action-btn:last-child').textContent = 'Update Product';
+            openModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await populateCategorySelects();
+            bindInventoryFilters();
+            await loadInventory();
+
+            // If a notification linked here with a focusId, open the edit modal
+            // for that product so the user can restock immediately.
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const focus = params.get('focusId');
+                if (focus) {
+                    const id = parseInt(focus, 10);
+                    if (!isNaN(id)) {
+                        // Highlight and scroll to the row, then open modal to restock
+                        highlightRow(id);
+                        setTimeout(() => { editItem(id); }, 350);
+                    }
+                }
+            } catch (e) { /* ignore */ }
+        });
+    </script>
+</body>
+</html>

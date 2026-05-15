@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maintenance - Glins Cravings</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-container {
+            width: 1100px;
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: auto;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Sidebar Tabs */
+        .maintenance-nav {
+            background: white;
+            border: 3px solid #000;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            padding: 12px;
+            border: 2px solid #000;
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 800;
+            text-align: left;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-btn.active {
+            background: #B86B77;
+            color: white;
+        }
+
+        /* Work Area */
+        .work-area {
+            background: white;
+            border: 3px solid #000;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 8px 8px 0px #B86B77;
+            overflow-y: auto;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Form Styling */
+        .maint-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #000;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .full-width { grid-column: span 2; }
+
+        .btn-save {
+            background: #28a745;
+            color: white;
+            padding: 12px;
+            border: 2px solid #000;
+            border-radius: 10px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-backup {
+            background: #000;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .backup-list {
+            margin-top: 20px;
+            border: 2px dashed #ccc;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="dash-header">
+            <img src="logo.png" alt="Logo" class="dash-logo">
+            <h1 class="dash-title">System Maintenance</h1>
+        </div>
+
+        <div style="padding: 10px 25px;">
+            <a href="admin-dashboard.html" style="text-decoration:none; color:#000; font-weight:800; font-size:12px;">
+                <i class="fa-solid fa-arrow-left"></i> RETURN TO DASHBOARD
+            </a>
+        </div>
+
+        <div class="main-content">
+            <div class="maintenance-nav">
+                <button class="tab-btn active" onclick="openTab(event, 'add-records')">
+                    <i class="fa-solid fa-plus-circle"></i> Add Records
+                </button>
+                <button class="tab-btn" onclick="openTab(event, 'edit-records')">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Records
+                </button>
+                <button class="tab-btn" onclick="openTab(event, 'backup-restore')">
+                    <i class="fa-solid fa-database"></i> Backup & Restore
+                </button>
+            </div>
+
+            <div class="work-area">
+                
+                <div id="add-records" class="tab-content active">
+                    <h2 style="margin-top:0;">Add New Product</h2>
+                    <form class="maint-form">
+                        <div class="form-group">
+                            <label>Product ID</label>
+                            <input type="text" placeholder="Auto-generated" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Product Name</label>
+                            <input type="text" placeholder="e.g. Cheese Corndog">
+                        </div>
+                        <div class="form-group">
+                            <label>Price (₱)</label>
+                            <input type="number" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select>
+                                <option>Snacks</option>
+                                <option>Noodles</option>
+                                <option>Drinks</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Description</label>
+                            <input type="text" placeholder="Brief details about the product...">
+                        </div>
+                        <button type="button" class="btn-save full-width" onclick="confirmAction('Record Added Successfully!')">
+                            SAVE TO DATABASE
+                        </button>
+                    </form>
+                </div>
+
+                <div id="edit-records" class="tab-content">
+                    <h2 style="margin-top:0;">Manage Records</h2>
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <input type="text" placeholder="Search by Product ID or Name..." style="flex:1;">
+                        <button class="tab-btn" style="padding:10px;">SEARCH</button>
+                    </div>
+                    <p style="color:#999; text-align:center; padding:40px;">Search for a record to begin editing.</p>
+                </div>
+
+                <div id="backup-restore" class="tab-content">
+                    <h2 style="margin-top:0;">System Security</h2>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                        <div>
+                            <h3>Create Backup</h3>
+                            <p style="font-size:12px; color:#666;">Download a copy of the current database.</p>
+                            <button class="btn-backup" onclick="confirmAction('Backup Created!')">
+                                <i class="fa-solid fa-download"></i> RUN BACKUP
+                            </button>
+                        </div>
+                        <div>
+                            <h3>Restore System</h3>
+                            <p style="font-size:12px; color:#666;">Upload a previous backup file.</p>
+                            <input type="file" id="restoreFile" style="margin-bottom:10px; width:100%;">
+                            <button class="btn-backup" style="background:#B86B77;" onclick="confirmAction('System Restored!')">
+                                <i class="fa-solid fa-upload"></i> RESTORE DATABASE
+                            </button>
+                        </div>
+                    </div>
+                    <div class="backup-list">
+                        <strong>Recent Activity:</strong>
+                        <ul style="margin-top:10px;">
+                            <li>Backup_2026_05_07.sql - Successful</li>
+                            <li>Restore_2026_04_30.sql - Successful</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        function confirmAction(msg) {
+            if(confirm("Are you sure you want to proceed?")) {
+                alert(msg);
+            }
+        }
+    </script>
+</body>
+</html>
